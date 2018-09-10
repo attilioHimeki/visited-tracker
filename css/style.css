@@ -1,0 +1,9 @@
+body {
+    background-color: whitesmoke;
+}
+
+#mapid  {
+    max-width: 600px; 
+    height: 400px; 
+    margin:0 auto;
+}
