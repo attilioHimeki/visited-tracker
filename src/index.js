@@ -1,13 +1,17 @@
 
+const GEOJSON_PATH = 'res/data/countries.geojson.txt';
+
 var popup;
 var map;
 var mapProvider;
 
 var userData;
+var geoJSONData;
 
 window.onload = function()
 {
 	setupMap();
+	preloadGeoJsonGeometry();
 
 	userData = new UserData();
 }
@@ -60,6 +64,16 @@ function setupMap()
 	map.addControl(searchControl);
 	
 	map.on('geosearch/showlocation', onGeoSearchLocationChosen);
+}
+
+function preloadGeoJsonGeometry() 
+{
+	loadJSON(GEOJSON_PATH, function(response) 
+	{
+		geoJSONData = JSON.parse(response);
+		
+		L.geoJson(geoJSONData).addTo(map);
+    });
 }
 
 function onGeoSearchLocationChosen(e)
