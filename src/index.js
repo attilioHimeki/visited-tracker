@@ -72,7 +72,7 @@ function preloadGeoJsonGeometry()
 	{
 		geoJSONData = JSON.parse(response);
 		
-		L.geoJson(geoJSONData).addTo(map);
+		L.geoJson(geoJSONData, { weight: 1, color:'#3388ff', fill:true }).addTo(map);
     });
 }
 
