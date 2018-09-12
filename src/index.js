@@ -6,14 +6,22 @@ var map;
 var mapProvider;
 
 var userData;
+
 var geoJSONData;
+var geoJsonFeatureByCountry;
+var geoJSONLayer;
 
 window.onload = function()
 {
 	setupMap();
+	setupUserData();
 	preloadGeoJsonGeometry();
+}
 
+function setupUserData()
+{
 	userData = new UserData();
+	userData.restoreFromLocalStorage();
 }
 
 function setupMap()
@@ -68,12 +76,44 @@ function setupMap()
 
 function preloadGeoJsonGeometry() 
 {
+	geoJSONLayer = L.geoJson().addTo(map);
+	geoJSONLayer.setStyle({ weight: 1, color:'#3388ff', fill:true});
+
 	loadJSON(GEOJSON_PATH, function(response) 
 	{
 		geoJSONData = JSON.parse(response);
-		
-		L.geoJson(geoJSONData, { weight: 1, color:'#3388ff', fill:true }).addTo(map);
+
+		geoJsonFeatureByCountry = {};
+
+		for(let i = 0; i < geoJSONData.features.length; i++)
+		{
+			let feature = geoJSONData.features[i];
+			let countryName = feature.properties.ADMIN;
+			geoJsonFeatureByCountry[countryName] = feature;
+		}
+
+		prefillVisitedCountries();
     });
+}
+
+function prefillVisitedCountries()
+{
+	let countries = userData.getVisitedCountries();
+
+	for(let i = 0; i < countries.length; i++)
+	{
+		let c = countries[i];
+		addCountryToGeoJsonLayer(c);
+	}
+}
+
+function addCountryToGeoJsonLayer(countryName)
+{
+	if(geoJsonFeatureByCountry.hasOwnProperty(countryName))
+	{
+		let feature = geoJsonFeatureByCountry[countryName];
+		geoJSONLayer.addData(feature);
+	}
 }
 
 function onGeoSearchLocationChosen(e)
@@ -83,7 +123,10 @@ function onGeoSearchLocationChosen(e)
 
 	userData.processAddedLocation(address);
 
-	queryMap(locationData.display_name)
+	let countryName = address.country;
+	addCountryToGeoJsonLayer(countryName);
+
+	//queryMap(locationData.display_name)
 	
 }
 
@@ -92,16 +135,18 @@ function onMapClick(e)
 
 }
 
-function queryMap(address)
+function queryMap(address, callback)
 {
 	mapProvider
 	.search({ query: address })
 	.then(function(result) { 
 		if(result.length > 0)
 		{
-			let info = result[0];
-			let a = info.raw;
-			L.marker([a.lat, a.lon]).addTo(map);
+			// let info = result[0];
+			// let a = info.raw;
+			// L.marker([a.lat, a.lon]).addTo(map);
+
+			callback(result[0]);
 		}
 	});
 }

@@ -1,3 +1,5 @@
+const LOCAL_STORAGE_USERDATA_KEY = "map_save_data";
+
 class UserData 
 {
 
@@ -5,6 +7,23 @@ class UserData
     {
         this.visitedCountries = [];
         this.visitedCities = [];
+    }
+    
+    restoreFromLocalStorage()
+    {
+        let savedData = localStorage.getItem(LOCAL_STORAGE_USERDATA_KEY);
+
+        if(savedData !== null)
+        {
+            this.fromJSON(savedData);
+        }
+    }
+
+    saveToLocalStorage()
+    {
+        let data = this.toJSON();
+
+        localStorage.setItem(LOCAL_STORAGE_USERDATA_KEY, data);
     }
 
     processAddedLocation(address) 
@@ -28,21 +47,38 @@ class UserData
             }
         }
 
+        this.saveToLocalStorage();
     }
 
     getVisitedCountries()
     {
-        return this.visitedCountries;
+        return this.visitedCountries.slice();
+    }
+
+    hasVisitedCountry(countryName)
+    {
+        return this.visitedCountries.includes(countryName);
     }
 
     toJSON()
-    {
+    {   
+        let obj = {
+            visitedCountries: this.visitedCountries,
+            visitedCities: this.visitedCities
+        }
 
+        return JSON.stringify(obj);
     }
 
-    fromJSON()
+    fromJSON(data)
     {
-        
+        var obj = JSON.parse(data);
+
+        for (var key in obj) 
+        {
+            this[key] = obj[key];
+        }   
+
     }
 
 }
