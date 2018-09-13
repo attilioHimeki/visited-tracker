@@ -3,7 +3,20 @@ body {
 }
 
 #mapid  {
-    max-width: 600px; 
+    max-width: 90%; 
+    width:700px;
     height: 400px; 
     margin:0 auto;
+}
+
+#tabs {
+    max-height: 90%;
+}
+
+.visitedTab {
+    height: 100%;
+}
+
+.visitedTable {
+    height: 100%;
 }

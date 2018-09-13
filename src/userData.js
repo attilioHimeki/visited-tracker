@@ -60,6 +60,16 @@ class UserData
         return this.visitedCountries.includes(countryName);
     }
 
+    getVisitedCities()
+    {
+        return this.visitedCities.slice();
+    }
+
+    hasVisitedCity(cityName)
+    {
+        return this.visitedCities.includes(cityName);
+    }
+
     toJSON()
     {   
         let obj = {

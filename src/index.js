@@ -16,6 +16,8 @@ window.onload = function()
 	setupMap();
 	setupUserData();
 	preloadGeoJsonGeometry();
+
+	initialiseUI();
 }
 
 function setupUserData()
@@ -105,6 +107,8 @@ function prefillVisitedCountries()
 		let c = countries[i];
 		addCountryToGeoJsonLayer(c);
 	}
+
+	refreshVisitedTables();
 }
 
 function addCountryToGeoJsonLayer(countryName)
@@ -127,7 +131,7 @@ function onGeoSearchLocationChosen(e)
 	addCountryToGeoJsonLayer(countryName);
 
 	//queryMap(locationData.display_name)
-	
+	refreshVisitedTables();
 }
 
 function onMapClick(e) 
