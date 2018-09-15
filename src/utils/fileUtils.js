@@ -1,3 +1,5 @@
+"use strict";
+
 function loadJSON(path, callback) 
 {
     var xmlRequest = new XMLHttpRequest();

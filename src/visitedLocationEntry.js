@@ -49,6 +49,16 @@ class VisitedLocationEntry
     this.address = address;
   }
 
+  getCity()
+  {
+    return this.address.city;
+  }
+
+  getCountry()
+  {
+    return this.address.country;
+  }
+
   inferTypeFromAddress(address)
   {
 

@@ -1,4 +1,6 @@
 
+"use strict";
+
 const GEOJSON_PATH = 'res/data/countries.geojson.txt';
 
 var popup;
@@ -125,10 +127,13 @@ function onGeoSearchLocationChosen(e)
 	let locationData = e.location.raw;
 	let address = locationData.address;
 
-	userData.processAddedLocation(address);
+	let visitedLocationEntry = new VisitedLocationEntry(address);
+	userData.processAddedLocation(visitedLocationEntry);
 
-	let countryName = address.country;
-	addCountryToGeoJsonLayer(countryName);
+	let countryName = visitedLocationEntry.getCountry();
+	
+	if(countryName !== undefined)
+		addCountryToGeoJsonLayer(countryName);
 
 	//queryMap(locationData.display_name)
 	refreshVisitedTables();

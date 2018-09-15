@@ -1,3 +1,5 @@
+"use strict";
+
 const LOCAL_STORAGE_USERDATA_KEY = "map_save_data";
 
 class UserData 
@@ -5,8 +7,10 @@ class UserData
 
     constructor() 
     {
-        this.visitedCountries = [];
-        this.visitedCities = [];
+        this.visitedLocations = [];
+
+        this.visitedCountriesCache = [];
+        this.visitedCitiesCache = [];
     }
     
     restoreFromLocalStorage()
@@ -26,57 +30,77 @@ class UserData
         localStorage.setItem(LOCAL_STORAGE_USERDATA_KEY, data);
     }
 
-    processAddedLocation(address) 
+    processAddedLocation(visitedLocationEntry) 
     {
-        if(address.hasOwnProperty("country"))
-        {
-            let country = address.country;
-            if(!this.visitedCountries.includes(country))
-            {
-                this.visitedCountries.push(country);
-            }
-        }
-        
-        if(address.hasOwnProperty("city"))
-        {
-            let city = address.city;
-            if(!this.visitedCities.includes(city))
-            {
-                this.visitedCities.push(city);
+        this.visitedLocations.push(visitedLocationEntry);
 
-            }
-        }
+        this.addToCaches(visitedLocationEntry);
 
         this.saveToLocalStorage();
     }
 
+    addToCaches(visitedLocationEntry)
+    {
+        let city = visitedLocationEntry.getCity();
+        let country = visitedLocationEntry.getCountry();
+
+        if(city !== undefined)
+        {
+            if(!this.visitedCitiesCache.includes(city))
+            {
+                this.visitedCitiesCache.push(city);
+            }
+        }
+
+        if(country !== undefined)
+        {
+            if(!this.visitedCountriesCache.includes(country))
+            {
+                this.visitedCountriesCache.push(country);
+            }
+        }
+
+    }
+
+    refreshCaches()
+    {
+        this.visitedCitiesCache = [];
+
+        let locationsAmount = this.visitedLocations.length;
+        for(let i = 0; i < locationsAmount; i++)
+        {
+            let loc = this.visitedLocations[i];
+
+            this.addToCaches(loc);
+        }
+    }
+
     getVisitedCountries()
     {
-        return this.visitedCountries.slice();
+        return this.visitedCountriesCache.slice();
     }
 
     hasVisitedCountry(countryName)
     {
-        return this.visitedCountries.includes(countryName);
+        return this.visitedCountriesCache.includes(countryName);
     }
 
     getVisitedCities()
     {
-        return this.visitedCities.slice();
+        return this.visitedCitiesCache.slice();
     }
 
     hasVisitedCity(cityName)
     {
-        return this.visitedCities.includes(cityName);
+        return this.visitedCitiesCache.includes(cityName);
     }
 
     toJSON()
     {   
         let obj = {
-            visitedCountries: this.visitedCountries,
-            visitedCities: this.visitedCities
+            visitedLocations: this.visitedLocations
         }
-
+        
         return JSON.stringify(obj);
     }
 
@@ -84,10 +108,19 @@ class UserData
     {
         var obj = JSON.parse(data);
 
-        for (var key in obj) 
+        if(obj.hasOwnProperty("visitedLocations"))
         {
-            this[key] = obj[key];
-        }   
+            let locations = obj.visitedLocations;
+            let locationsAmount = locations.length;
+            
+            for(let i = 0; i < locationsAmount; i++)
+            {
+                let loc = locations[i];
+                let visitedLocationEntry = new VisitedLocationEntry(loc.address);
+                this.processAddedLocation(visitedLocationEntry)
+            }
+        }
+       
 
     }
 

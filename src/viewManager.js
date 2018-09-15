@@ -1,3 +1,5 @@
+"use strict";
+
 var tabsGroup;
 var visitedCountriesTable;
 var visitedCitiesTable;
