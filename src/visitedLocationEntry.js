@@ -4,6 +4,7 @@ const LOCATION_ADDRESS_TYPE =
 {
   CONTINENT: "continent",
   COUNTRY: "country",
+  COUNTY: "county",
   STATE: "state",
   CITY: "city",
   VILLAGE: "village",
