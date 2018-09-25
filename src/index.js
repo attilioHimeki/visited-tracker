@@ -2,6 +2,7 @@
 "use strict";
 
 const GEOJSON_PATH = 'res/data/countries.geojson.txt';
+const COUNTRIES_NAMES_SYNONYMS_PATH = 'res/data/geojson-to-openstreetmap-countries-synonyms.json';
 
 var popup;
 var map;
@@ -12,6 +13,7 @@ var userData;
 var geoJSONData;
 var geoJsonFeatureByCountry;
 var geoJSONLayer;
+var countriesNameSynonyms;
 
 window.onload = function()
 {
@@ -83,21 +85,35 @@ function preloadGeoJsonGeometry()
 	geoJSONLayer = L.geoJson().addTo(map);
 	geoJSONLayer.setStyle({ weight: 1, color:'#3388ff', fill:true});
 
-	loadJSON(GEOJSON_PATH, function(response) 
+	loadJSON(COUNTRIES_NAMES_SYNONYMS_PATH, function(response)
 	{
-		geoJSONData = JSON.parse(response);
+		countriesNameSynonyms = JSON.parse(response);
 
-		geoJsonFeatureByCountry = {};
-
-		for(let i = 0; i < geoJSONData.features.length; i++)
+		loadJSON(GEOJSON_PATH, function(geoJSONresponse) 
 		{
-			let feature = geoJSONData.features[i];
-			let countryName = feature.properties.ADMIN;
-			geoJsonFeatureByCountry[countryName] = feature;
-		}
+			geoJSONData = JSON.parse(geoJSONresponse);
 
-		prefillVisitedCountries();
-    });
+			geoJsonFeatureByCountry = {};
+
+			for(let i = 0; i < geoJSONData.features.length; i++)
+			{
+				let feature = geoJSONData.features[i];
+				let countryName = feature.properties.ADMIN;
+				geoJsonFeatureByCountry[countryName] = feature;
+
+				if(countriesNameSynonyms.hasOwnProperty(countryName))
+				{
+					let synonyms =countriesNameSynonyms[countryName];
+					for(let j = 0; j < synonyms.length; j++)
+					{
+						geoJsonFeatureByCountry[synonyms[j]] = feature;
+					}
+				}
+			}
+
+			prefillVisitedCountries();
+		});
+	});
 }
 
 function prefillVisitedCountries()
@@ -126,7 +142,7 @@ function onGeoSearchLocationChosen(e)
 {
 	let locationData = e.location.raw;
 	let address = locationData.address;
-
+	
 	let visitedLocationEntry = new VisitedLocationEntry(address);
 	userData.processAddedLocation(visitedLocationEntry);
 
